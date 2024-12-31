@@ -8,8 +8,7 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "start": "npm install --omit=dev && npm audit fix && npm run dev",
-    "postinstall": "npm audit fix"
+    "start": "npm install --omit=dev && npm audit fix --force && npm run dev"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.7",
