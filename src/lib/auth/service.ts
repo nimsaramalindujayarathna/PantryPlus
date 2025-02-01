@@ -38,13 +38,15 @@ export async function register({ email, password, firstName, lastName, userId }:
 
     // Initialize Firebase data structure for the user
     const userRef = ref(db, userId)
-    await set(userRef, {
-      ...Array.from({ length: 20 }, (_, i) => ({
-        [`loadCell${String(i + 1).padStart(2, '0')}`]: {
-          weight: 0
-        }
-      })).reduce((acc, curr) => ({ ...acc, ...curr }), {})
-    })
+    const loadCells = {}
+    
+    // Initialize all 20 load cells with 0 weight
+    for (let i = 1; i <= 20; i++) {
+      const loadCellId = `loadCell${String(i).padStart(2, '0')}`
+      loadCells[loadCellId] = { weight: 0 }
+    }
+    
+    await set(userRef, loadCells)
 
     // Create profile in Supabase
     const { error: profileError } = await supabase
@@ -57,6 +59,8 @@ export async function register({ email, password, firstName, lastName, userId }:
       }])
 
     if (profileError) {
+      // Cleanup Firebase data if profile creation fails
+      await set(userRef, null)
       await supabase.auth.signOut()
       throw new Error('Failed to create profile. Please try again.')
     }
